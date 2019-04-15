@@ -16,6 +16,7 @@ public struct Tag {
 public struct TagInfo {
     public let tag: Tag
     public let range: Range<String.Index>
+    public let level: Int
 }
 
 public enum TagType {
@@ -100,30 +101,30 @@ extension String {
         return Tag(name: tagName, attributes: attrubutes)
     }
     
-    private static let specials = ["quot":"\"",
-                                   "amp":"&",
-                                   "apos":"'",
-                                   "lt":"<",
-                                   "gt":">",
-                                   "nbsp":" "] //just replacing it with space, not going to implement non-breaking logic
-    
     public func detectTags(transformers: [TagTransformer] = []) -> (string: String, tagsInfo: [TagInfo]) {
+        
+        struct TagInfoInternal {
+            public let tag: Tag
+            public let rangeStart: Int
+            public let rangeEnd: Int
+            public let level: Int
+        }
         
         let scanner = Scanner(string: self)
         scanner.charactersToBeSkipped = nil
         var resultString = String()
-        var tagsResult = [TagInfo]()
-        var tagsStack = [(Tag, String.Index)]()
+        var tagsResult = [TagInfoInternal]()
+        var tagsStack = [(Tag, Int, Int)]()
         
         while !scanner.isAtEnd {
             
             if let textString = scanner.scanUpToCharacters(from: CharacterSet(charactersIn: "<&")) {
-                resultString += textString
+                resultString.append(textString)
             } else {
                 if scanner.scanString("<") != nil {
                     
                     if scanner.isAtEnd {
-                        resultString += "<"
+                        resultString.append("<")
                     } else {
                         let nextChar = (scanner.string as NSString).substring(with: NSRange(location: scanner.scanLocation, length: 1))
                         if CharacterSet.letters.contains(nextChar.unicodeScalars.first!) || (nextChar == "/") {
@@ -133,20 +134,20 @@ extension String {
                                 if scanner.scanString(">") != nil {
                                     if let tag = parseTag(tagString, parseAttributes: tagType == .start ) {
                                         
-                                        let resultTextEndIndex = resultString.endIndex
+                                        let resultTextEndIndex = resultString.count
                                         
                                         if let transformer = transformers.first(where: {
                                             $0.tagName.lowercased() == tag.name.lowercased() && $0.tagType == tagType
                                         }) {
-                                            resultString += transformer.transform(tag)
+                                            resultString.append(transformer.transform(tag))
                                         }
                                         
                                         if tagType == .start {
-                                            tagsStack.append((tag, resultTextEndIndex))
+                                            tagsStack.append((tag, resultTextEndIndex, (tagsStack.last?.2 ?? -1) + 1))
                                         } else {
-                                            for (index, (tagInStack, startIndex)) in tagsStack.enumerated().reversed() {
+                                            for (index, (tagInStack, startIndex, level)) in tagsStack.enumerated().reversed() {
                                                 if tagInStack.name.lowercased() == tag.name.lowercased() {
-                                                    tagsResult.append(TagInfo(tag: tagInStack, range: startIndex..<resultTextEndIndex))
+                                                    tagsResult.append(TagInfoInternal(tag: tagInStack, rangeStart: startIndex, rangeEnd: resultTextEndIndex, level: level))
                                                     tagsStack.remove(at: index)
                                                     break
                                                 }
@@ -154,33 +155,43 @@ extension String {
                                         }
                                     }
                                 } else {
-                                    resultString += "<"
-                                    resultString += tagString
+                                    resultString.append("<")
+                                    resultString.append(tagString)
                                 }
                             }
                         } else {
-                            resultString += "<"
+                            resultString.append("<")
                         }
                     }
                 } else if scanner.scanString("&") != nil {
-                    
-                    var foundSpecial = false
-                    for (k, v) in String.specials {
-                        if scanner.scanString(k + ";") != nil {
-                            resultString += v
-                            foundSpecial = true
-                            break
+                    if scanner.scanString("#") != nil {
+                        if let potentialSpecial = scanner.scanCharacters(from: CharacterSet.alphanumerics) {
+                            if scanner.scanString(";") != nil {
+                                resultString.append(potentialSpecial.unescapeAsNumber() ?? "&#\(potentialSpecial);")
+                            } else {
+                                resultString.append("&#")
+                                resultString.append(potentialSpecial)
+                            }
+                        } else {
+                            resultString.append("&#")
                         }
-                    }
-                    
-                    if !foundSpecial {
-                        resultString += "&"
+                    } else {
+                        if let potentialSpecial = scanner.scanCharacters(from: CharacterSet.letters) {
+                            if scanner.scanString(";") != nil {
+                                resultString.append(HTMLSpecial(for: potentialSpecial) ?? "&\(potentialSpecial);")
+                            } else {
+                                resultString.append("&")
+                                resultString.append(potentialSpecial)
+                            }
+                        } else {
+                            resultString.append("&")
+                        }
                     }
                 }
             }
         }
         
-        return (resultString, tagsResult)
+        return (resultString, tagsResult.map { TagInfo(tag: $0.tag, range: resultString.index(resultString.startIndex, offsetBy: $0.rangeStart)..<resultString.index(resultString.startIndex, offsetBy: $0.rangeEnd), level: $0.level) })
     }
     
     public func detectHashTags() -> [Range<String.Index>] {
