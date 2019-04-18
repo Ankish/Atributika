@@ -55,14 +55,6 @@ extension AttributedTextProtocol {
         for d in detections {
             let attrs = getAttributes(d.style)
             if attrs.count > 0 {
-                switch d.type {
-                case .tag(let tag) :
-                    if let a =  tag.attributes["href"] , let url = URL(string: a) {
-                        attributedString.addAttributes([.link : url], range: NSRange(d.range, in: string))
-                    }
-                    continue
-                default : break
-                }
                 attributedString.addAttributes(attrs, range: NSRange(d.range, in: string))
             }
         }
