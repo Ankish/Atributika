@@ -67,9 +67,10 @@ extension String {
             guard tagScanner.scanString("=") != nil else {
                 break
             }
-            
             let startsFromSingleQuote = (tagScanner.scanString("'") != nil)
-            if !startsFromSingleQuote {
+            let startsFromSingleSlash = (tagScanner.scanString("\"") != nil)
+            let noStart = startsFromSingleQuote == false && startsFromSingleSlash == false
+            if !startsFromSingleQuote && tagName != "a" {
                 guard tagScanner.scanString("\"") != nil else {
                     break
                 }
@@ -77,7 +78,15 @@ extension String {
             
             let quote = startsFromSingleQuote ? "'" : "\""
             
-            let value = tagScanner.scanUpTo(quote) ?? ""
+            let value : String
+            if noStart {
+                guard let valueThis = tagScanner.scanUpTo(">") else {
+                    break
+                }
+                value = valueThis
+            } else {
+                value = tagScanner.scanUpTo(quote) ?? ""
+            }
             
             guard tagScanner.scanString(quote) != nil else {
                 break
