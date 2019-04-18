@@ -66,6 +66,17 @@ class AtributikaTests: XCTestCase {
         XCTAssertEqual(test,reference)
     }
     
+    func testCustomAttributes() {
+        
+        let test = "<b>Hello World</b>!!!".style(tags: Style("b").custom(1, forAttributedKey: .verticalGlyphForm)).attributedString
+        
+        let reference = NSMutableAttributedString(string: "Hello World!!!")
+        reference.addAttribute(.verticalGlyphForm, value: 1, range: NSMakeRange(0, 11))
+        
+        XCTAssertEqual(test,reference)
+
+    }
+    
     func testLines() {
         
         let test = "<b>Hello\nWorld</b>!!!".style(tags: Style("b").font(.boldSystemFont(ofSize: 45)))
@@ -459,19 +470,48 @@ class AtributikaTests: XCTestCase {
     }
     
     func testSpecials() {
-        XCTAssertEqual("Hello&amp;World!!!".detectTags().string , "Hello&World!!!")
-        XCTAssertEqual("Hello&".detectTags().string , "Hello&")
-        XCTAssertEqual("Hello&World".detectTags().string , "Hello&World")
-        XCTAssertEqual("&quot;Quote&quot;".detectTags().string , "\"Quote\"")
-        XCTAssertEqual("&".detectTags().string , "&")
-        XCTAssertEqual("&&amp;".detectTags().string , "&&")
-        XCTAssertEqual("4>5".detectTags().string , "4>5")
-        XCTAssertEqual("4<5".detectTags().string , "4<5")
-        XCTAssertEqual("<".detectTags().string , "<")
-        XCTAssertEqual(">".detectTags().string , ">")
-        XCTAssertEqual("<a".detectTags().string , "<a")
-        XCTAssertEqual("<a>".detectTags().string , "")
-        XCTAssertEqual("< a>".detectTags().string , "< a>")
+        XCTAssertEqual("Hello&amp;World!!!".detectTags().string, "Hello&World!!!")
+        XCTAssertEqual("Hello&".detectTags().string, "Hello&")
+        XCTAssertEqual("Hello&World".detectTags().string, "Hello&World")
+        XCTAssertEqual("&quot;Quote&quot;".detectTags().string, "\"Quote\"")
+        XCTAssertEqual("&".detectTags().string, "&")
+        XCTAssertEqual("&&amp;".detectTags().string, "&&")
+        XCTAssertEqual("4>5".detectTags().string, "4>5")
+        XCTAssertEqual("4<5".detectTags().string, "4<5")
+        XCTAssertEqual("<".detectTags().string, "<")
+        XCTAssertEqual(">".detectTags().string, ">")
+        XCTAssertEqual("<a".detectTags().string, "<a")
+        XCTAssertEqual("<a>".detectTags().string, "")
+        XCTAssertEqual("< a>".detectTags().string, "< a>")        
+        XCTAssertEqual("&frasl;".detectTags().string, "⁄")
+        XCTAssertEqual("&raquo;".detectTags().string, "»")
+    }
+    
+    func testSpecialCodes() {
+        XCTAssertEqual("Fish&#38;Chips".detectTags().string, "Fish&Chips")
+        
+        XCTAssertEqual("Hello, world.".detectTags().string, "Hello, world.")
+        
+        XCTAssertEqual("Fish & Chips".detectTags().string, "Fish & Chips")
+        
+        XCTAssertEqual("My phone number starts with a &#49;".detectTags().string, "My phone number starts with a 1")
+        
+        XCTAssertEqual("My phone number starts with a &#4_9;!".detectTags().string, "My phone number starts with a &#4_9;!")
+        
+        XCTAssertEqual("Let's meet at the caf&#xe9;".detectTags().string ,"Let's meet at the café")
+        
+        XCTAssertEqual("Let's meet at the caf&#xzi;!".detectTags().string, "Let's meet at the caf&#xzi;!")
+        
+        XCTAssertEqual("What is this character ? -> &#xd8ff;".detectTags().string, "What is this character ? -> &#xd8ff;")
+        
+        XCTAssertEqual("I love &swift;".detectTags().string ,"I love &swift;")
+        
+        XCTAssertEqual("Do you know &aleph;?".detectTags().string, "Do you know ℵ?")
+        
+        XCTAssertEqual("a &amp;&amp; b".detectTags().string, "a && b")
+        
+        XCTAssertEqual("Going to the &#127482;&#127480; next June".detectTags().string, "Going to the 🇺🇸 next June")
+        
     }
     
     func testCaseInsensitive1() {

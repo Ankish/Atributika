@@ -207,23 +207,37 @@ func stringWithStrikethrough() -> NSAttributedString {
     return str
 }
 
+func stringWithColors() -> NSAttributedString {
+    let r = Style("r").foregroundColor(.red)
+    let g = Style("g").foregroundColor(.green)
+    let b = Style("b").foregroundColor(.blue)
+    let c = Style("c").foregroundColor(.cyan)
+    let m = Style("m").foregroundColor(.magenta)
+    let y = Style("y").foregroundColor(.yellow)
+    
+    let str = "<r>Hello <g>w<c>orld<m></g>; he<y>l</y></c>lo atributika</r></m>".style(tags: r, g, b, c, m, y)
+        .attributedString
+    return str
+}
+
 func allSnippets() -> [NSAttributedString] {
     return [
-//        stringWithAtributikaLogo(),
-//        stringWithTagsAndEmoji(),
-//        stringWithHashTagAndMention(),
-//        stringWithPhone(),
-//        stringWithLink(),
-//        stringWithManyDetectables(),
-//        stringWith3Tags(),
-//        stringWithGrams(),
-//        stringWithStrong(),
-//        stringWithTagAndHashtag(),
-//        stringWithUnorderedList(),
-//        stringWithHref(),
-//        stringWithBoldItalicUnderline(),
-//        stringWithImage(),
-//        stringWithStrikethrough()
+        stringWithAtributikaLogo(),
+        stringWithTagsAndEmoji(),
+        stringWithHashTagAndMention(),
+        stringWithPhone(),
+        stringWithLink(),
+        stringWithManyDetectables(),
+        stringWith3Tags(),
+        stringWithGrams(),
+        stringWithStrong(),
+        stringWithTagAndHashtag(),
+        stringWithUnorderedList(),
+        stringWithHref(),
+        stringWithBoldItalicUnderline(),
+        stringWithImage(),
+        stringWithStrikethrough(),
+        stringWithColors()
     ]
 }
 

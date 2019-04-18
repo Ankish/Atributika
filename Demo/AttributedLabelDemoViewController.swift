@@ -30,6 +30,7 @@ class AttributedLabelDemoViewController: UIViewController {
     
     private var tweets: [String] = [
         "@e2F If only Bradley's arm was longer. Best photo ever. 😊 #oscars https://pic.twitter.com/C9U5NOtGap<br>Check this <a href=\"https://github.com/psharanda/Atributika\">link</a>",
+        "@e2F If only Bradley's arm was longer. Best photo ever. 😊 #oscars https://pic.twitter.com/C9U5NOtGap<br>Check this <a href=\"https://github.com/psharanda/Atributika\">link that won't detect click here</a>",
         "For every retweet this gets, Pedigree will donate one bowl of dog food to dogs in need! 😊 #tweetforbowls",
         "All the love as always. H",
         "We got kicked out of a @Delta airplane because I spoke Arabic to my mom on the phone and with my friend slim... WTFFFFFFFF please spread",
@@ -38,7 +39,9 @@ class AttributedLabelDemoViewController: UIViewController {
         "RT or tweet #camilahammersledge for a follow 👽",
         "Denny JA: Dengan RT ini, anda ikut memenangkan Jokowi-JK. Pilih pemimpin yg bisa dipercaya (Jokowi) dan pengalaman (JK). #DJoJK",
         "Always in my heart @Harry_Styles . Yours sincerely, Louis",
-        "HELP ME PLEASE. A MAN NEEDS HIS NUGGS https://pbs.twimg.com/media/C8sk8QlUwAAR3qI.jpg"
+        "HELP ME PLEASE. A MAN NEEDS HIS NUGGS https://pbs.twimg.com/media/C8sk8QlUwAAR3qI.jpg",
+        "Подтверждая номер телефона, вы\nпринимаете «<a>пользовательское соглашение</a>»",
+        "Here's how a similar one was solved 😄 \nhttps://medium.com/@narcelio/solving-decred-mockingbird-puzzle-5366efeaeed7\n"
     ]
     
     init() {
